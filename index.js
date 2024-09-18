@@ -8,7 +8,7 @@ const app = express();
 // Çevresel değişkenleri alıyoruz
 const token = process.env.DISCORD_TOKEN;
 const port = process.env.PORT || 3000; // Varsayılan olarak 3000 portunu kullanır
-const channelId = process.env.CHANNEL_ID;
+const channelIds = process.env.CHANNEL_IDS.split(','); // Kanal ID'lerini virgülle ayırarak alıyoruz
 
 client.on('ready', async () => {
     console.log(`${client.user.username} is ready!`);
@@ -85,10 +85,10 @@ client.on('ready', async () => {
         }
     }
 
-    async function continuousCheck() {
+    async function continuousCheckForChannel(channelId) {
         const channel = await client.channels.fetch(channelId);
         if (!channel) {
-            console.log('Kanal bulunamadı.');
+            console.log(`Kanal bulunamadı: ${channelId}`);
             return;
         }
 
@@ -98,7 +98,10 @@ client.on('ready', async () => {
         }, 5000); // Her 5 saniyede bir mesajları kontrol et
     }
 
-    continuousCheck(); // Mesajları kontrol eden döngüyü başlat
+    // Tüm kanalları kontrol et
+    channelIds.forEach(channelId => {
+        continuousCheckForChannel(channelId);
+    });
 });
 
 client.login(token);
